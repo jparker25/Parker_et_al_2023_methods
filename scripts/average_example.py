@@ -1,5 +1,5 @@
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt 
 import matplotlib.patches as patches
 import pandas as pd
 import pickle,os,sys
@@ -13,13 +13,14 @@ csv = f"{save_direc}/comparisons/all_data.csv"
 
 df = pd.read_csv(csv)
 
-#fig, ax = plt.subplots(2,2,figsize=(8,6),dpi=300)
-fig = plt.figure(figsize=(10,8),dpi=300)
-gs = fig.add_gridspec(4,4)
+fig = plt.figure(figsize=(8,6),dpi=300)
+#gs = fig.add_gridspec(4,4)
+gs = fig.add_gridspec(3,4)
 sample = df[(df["neural_response"] != "no effect") & (df["delivery"]==delivery)].sample()
 print(sample["cell_num"])
 
-axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[2:3,0:2]),fig.add_subplot(gs[2:3,2:]),fig.add_subplot(gs[3:4,0:2]),fig.add_subplot(gs[3:,2:]),fig.add_subplot(gs[0:2,2:])]
+#axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[0,2:]),fig.add_subplot(gs[1,2:]),fig.add_subplot(gs[2:,0:2]),fig.add_subplot(gs[2:,2:])]
+axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[0,2:]),fig.add_subplot(gs[1,2:]),fig.add_subplot(gs[2,0:2]),fig.add_subplot(gs[2,2:])]
 
 #cell_num = 17
 #cell_num = 58
@@ -32,9 +33,8 @@ ax = axes[0]
 for trial in range(1,neuron.trials+1):
     bl = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/baseline_data/baseline_spike_train.txt")
     stim = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus_data/stimulus_spike_train.txt")
-    ax.scatter(bl-10,np.ones(len(bl))*trial,marker="|",s=10,color="k")
-    ax.scatter(stim,np.ones(len(stim))*trial,marker="|",s=10,color="k")
-#ax.plot([0,10],[neuron.trials+1, neuron.trials+1],linewidth=3,color="r")
+    ax.scatter(bl-10,np.ones(len(bl))*trial,marker="|",s=50,color="k")
+    ax.scatter(stim,np.ones(len(stim))*trial,marker="|",s=50,color="k")
 
 ax.set_yticks(list(range(1,neuron.trials+1)))
 ax.set_yticklabels(list(range(1,neuron.trials+1)))
@@ -58,10 +58,8 @@ for i in ['left','right','top','bottom']:
 
 ax = axes[1]
 for trial in range(1,neuron.trials+1):
-    #bl = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/baseline_data/sdf.txt")
     stim = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus_data/sdf.txt")
     stim = stim/np.max(stim)
-    #ax.plot(np.linspace(-10,0,len(bl)),bl)
     ax.plot(np.linspace(0,10,len(stim)),stim+trial)
 ax.set_yticks(list(range(1,neuron.trials+1)))
 ax.set_yticklabels(list(range(1,neuron.trials+1)),fontsize=8)
@@ -156,50 +154,13 @@ for i in ['left','right','top','bottom']:
         ax.spines[i].set_linewidth(3)
         ax.tick_params('both', width=0)
 
-ax = axes[5]
-ax.axis('off')
-ax.text(0.0,0.8,"Type",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.45,0.8,"Inh.",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.55,0.8,"Exc.",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.7,0.8,"Notes",fontsize=10,transform=ax.transAxes,ma="left")
-
-ax.text(0.0,0.75,"__________________________________________________________",fontsize=10,transform=ax.transAxes,ma="left")
-
-ax.text(0.0,0.6,"Partial Inhibition (PI)",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.0,0.5,"Adapting Inhibition (AI)",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.0,0.4,"No Effect (NE)",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.0,0.3,"Excitation (EX)",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.0,0.2,"Biphasic IE (BPIE)",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.0,0.1,"Biphasic EI (BPEI)",fontsize=10,transform=ax.transAxes,ma="left")
-
-ax.text(0.45,0.6,">2",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.45,0.5,">2",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.45,0.4,"<3",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.45,0.3,"<3",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.45,0.2,">2",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.45,0.1,">2",fontsize=10,transform=ax.transAxes,ma="left")
-
-ax.text(0.55,0.6,"<3",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.55,0.5,"<3",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.55,0.4,"<3",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.55,0.3,">2",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.55,0.2,">2",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.55,0.1,">2",fontsize=10,transform=ax.transAxes,ma="left")
-
-ax.text(0.7,0.6,"N/A",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.7,0.5,"More Inh. early",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.7,0.4,"N/A",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.7,0.3,"N/A",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.7,0.2,"More Inh. early",fontsize=10,transform=ax.transAxes,ma="left")
-ax.text(0.7,0.1,"More Exc. early",fontsize=10,transform=ax.transAxes,ma="left")
-
 labels = ["A","B","C","D","E","F"]
-axlabel = [axes[0],axes[5],axes[1],axes[2],axes[3],axes[4]]
+axlabel = [axes[0],axes[1],axes[2],axes[3],axes[4]]
 for i in range(len(axlabel)):
     axlabel[i].text(0.03,0.98,labels[i],fontsize=16,transform=axlabel[i].transAxes,fontweight="bold",color="gray")
 
 plt.tight_layout()
-plt.savefig(f"figures/classification_diagram.pdf")
+plt.savefig(f"../figures/average_example.pdf")
 plt.close()
 
-os.system(f"open figures/classification_diagram.pdf")
+os.system(f"open ../figures/average_example.pdf")
