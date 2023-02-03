@@ -11,6 +11,7 @@ save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Na
 delivery = "PV-DIO-ChR2 in GPe"
 csv = f"{save_direc}/comparisons/all_data.csv"
 types = ["complete inhibition","partial inhibition","adapting inhibition","no effect","excitation","biphasic IE","biphasic EI"]
+types_abbrev = ["CI","PI","AI","NE","EX","BPIE","BPEI"]
 
 cell_nums = [39,105,90,49,78,89,73]
 delivery = ["hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","PV-DIO-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe"]
@@ -82,8 +83,8 @@ for ii in range(1,len(delivery)):
     for trial in range(1,neuron.trials+1):
         bl = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/baseline_data/baseline_spike_train.txt")
         stim = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus_data/stimulus_spike_train.txt")
-        axes[0].scatter(bl-10,np.ones(len(bl))*trial,marker="|",s=10,color="k")
-        axes[0].scatter(stim,np.ones(len(stim))*trial,marker="|",s=10,color="k")
+        axes[0].scatter(bl-10,np.ones(len(bl))*trial,marker="|",s=50,color="k")
+        axes[0].scatter(stim,np.ones(len(stim))*trial,marker="|",s=50,color="k")
     axes[0].set_yticks(list(range(1,neuron.trials+1)))
     axes[0].set_yticklabels(list(range(1,neuron.trials+1)))
     axes[0].set_xticks(list(range(-10,11,5)))
@@ -163,5 +164,5 @@ for ii in range(1,len(delivery)):
 
 
     plt.tight_layout()
-    plt.savefig(f"figures/classification_example_{types[ii]}.pdf")
+    plt.savefig(f"../figures/borderline_{types_abbrev[ii]}.pdf")
     plt.close()

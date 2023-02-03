@@ -13,12 +13,14 @@ csv = f"{save_direc}/comparisons/all_data.csv"
 
 df = pd.read_csv(csv)
 
+#fig, ax = plt.subplots(2,2,figsize=(8,6),dpi=300)
 fig = plt.figure(figsize=(8,6),dpi=300)
 #gs = fig.add_gridspec(4,4)
 gs = fig.add_gridspec(3,4)
 sample = df[(df["neural_response"] != "no effect") & (df["delivery"]==delivery)].sample()
 print(sample["cell_num"])
 
+#axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[2:3,0:2]),fig.add_subplot(gs[2:3,2:]),fig.add_subplot(gs[3:4,0:2]),fig.add_subplot(gs[3:,2:]),fig.add_subplot(gs[0:2,2:])]
 #axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[0,2:]),fig.add_subplot(gs[1,2:]),fig.add_subplot(gs[2:,0:2]),fig.add_subplot(gs[2:,2:])]
 axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[0,2:]),fig.add_subplot(gs[1,2:]),fig.add_subplot(gs[2,0:2]),fig.add_subplot(gs[2,2:])]
 
