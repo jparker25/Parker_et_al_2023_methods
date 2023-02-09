@@ -31,7 +31,6 @@ neuron = pickle.load(open(f"{cell_dir}/neuron.obj","rb"))
 trial = 5;
 train = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus_data/stimulus_spike_train.txt")
 
-
 #fig, ax = plt.subplots(3,2,figsize=(8,6),dpi=300)
 #axes = [ax[0,0],ax[1,0],ax[2,0],ax[0,1],ax[1,1],ax[2,1]]
 
@@ -92,6 +91,10 @@ axes[5].set_xlim([7.5,8])
 axes[6].scatter(train,np.zeros(len(train))*-2,marker="|",s=50,color="k")
 axes[6].plot(time,isif,color="blue")
 
+rect_sdf = patches.Rectangle((2.25,0),0.5,40,fill=False,color="gray",linewidth=2)
+axes[3].add_patch(rect_sdf)
+rect_isi = patches.Rectangle((7.5,0.015),0.5,0.1,fill=False,color="gray",linewidth=2)
+axes[6].add_patch(rect_isi)
 
 for axe in axes[1:]:
     for i in ['left','right','top','bottom']:
