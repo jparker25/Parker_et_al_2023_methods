@@ -43,7 +43,7 @@ ax.set_yticklabels(list(range(1,neuron.trials+1)))
 ax.set_xticks(list(range(-10,11,5)))
 ax.set_xticklabels(list(range(-10,11,5)),fontsize=8)
 ax.set_xlabel("Time (s)")
-ax.set_ylabel("Trial",rotation=90)
+ax.set_ylabel("Trial Number",rotation=90)
 ylims = ax.get_ylim()
 ax.vlines(0,ylims[0],ylims[1],color="gray",linestyle="dashed")
 ax.set_ylim(ylims)
@@ -65,7 +65,7 @@ for trial in range(1,neuron.trials+1):
     ax.plot(np.linspace(0,10,len(stim)),stim+trial)
 ax.set_yticks(list(range(1,neuron.trials+1)))
 ax.set_yticklabels(list(range(1,neuron.trials+1)),fontsize=8)
-ax.set_ylabel("Trial SDF",rotation=90)
+ax.set_ylabel("Trial # SDF (sps)",rotation=90)
 ax.set_xlabel("Time (s)")
 ax.set_xticks(list(range(0,12,2)))
 ax.set_xticklabels(list(range(0,12,2)),fontsize=8)
@@ -87,7 +87,7 @@ for trial in range(1,neuron.trials+1):
     ax.plot(np.linspace(0,10,len(isif)),isif+trial)
 ax.set_yticks(list(range(1,neuron.trials+1)))
 ax.set_yticklabels(list(range(1,neuron.trials+1)),fontsize=8)
-ax.set_ylabel("Trial ISIF",rotation=90)
+ax.set_ylabel("Trial # ISIF",rotation=90)
 ax.set_xlabel("Time (s)")
 ax.set_xticks(list(range(0,12,2)))
 ax.set_xticklabels(list(range(0,12,2)),fontsize=8)
@@ -108,16 +108,13 @@ avgsdf = np.zeros(len(np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus_
 for trial in range(1,neuron.trials+1):
     avgsdf += np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus_data/sdf.txt") / neuron.trials
 t = np.linspace(0,10,len(avgsdf))
-avgsdf = avgsdf / np.max(avgsdf)
 ax.plot(t,avgsdf,color="blue")
 for bi in range(len(bin_edges)-1):
     if avg_bins[bi] == 2:
         st,ed = np.where(t <= bin_edges[bi])[0][-1],np.where(t < bin_edges[bi+1])[0][-1]
         ax.fill_between(t[st:ed+1],avgsdf[st:ed+1],color="blue",alpha=0.5)
-ax.set_ylabel("Average SDF")
+ax.set_ylabel("Average SDF (sps)")
 ax.set_xlabel("Time (s)")
-ax.set_yticks([0,0.5,1])
-ax.set_yticklabels([0,0.5,1],fontsize=8)
 ax.set_xticks(list(range(0,12,2)))
 ax.set_xticklabels(list(range(0,12,2)),fontsize=8)
 
@@ -135,16 +132,13 @@ avgisif = np.zeros(len(np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus
 for trial in range(1,neuron.trials+1):
     avgisif += np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus_data/isif.txt") / neuron.trials
 
-avgisif = avgisif / np.max(avgisif)
 ax.plot(np.linspace(0,10,len(avgisif)),avgisif,color="blue")
 for bi in range(len(bin_edges)-1):
     if avg_bins[bi] == 1:
         st,ed = np.where(t <= bin_edges[bi])[0][-1],np.where(t < bin_edges[bi+1])[0][-1]
         ax.fill_between(t[st:ed+1],avgisif[st:ed+1],color="blue",alpha=0.5)
-ax.set_ylabel("Average Trial ISIF")
+ax.set_ylabel("Average ISIF")
 ax.set_xlabel("Time (s)")
-ax.set_yticks([0,0.5,1])
-ax.set_yticklabels([0,0.5,1],fontsize=8)
 ax.set_xticks(list(range(0,12,2)))
 ax.set_xticklabels(list(range(0,12,2)),fontsize=8)
 sns.despine(fig=fig)

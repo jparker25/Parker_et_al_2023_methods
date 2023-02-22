@@ -41,6 +41,42 @@ np.random.seed(24);
 fig, ax = plt.subplots(3,2,figsize=(8,6),dpi=300)
 axes = [ax[0,0],ax[1,0],ax[2,0],ax[0,1],ax[1,1],ax[2,1]]
 
+### EXCITATION ###
+results = np.zeros(len(stim_data_train.bin_edges)-1) # Create empty array that will store the classifications of each bin
+bl_isi = np.diff(baseline_train.spikes) # Find the baseline ISI values
+bl_shuffles = [np.random.permutation(bl_isi) if x > 0 else bl_isi for x in range(10)] # Shuffle the bl ISI values for shuffles number of times
+bl_spikes = [[baseline_train.spikes[0]+sum(bl_shuff[0:i]) if i > 0 else baseline_train.spikes[0] for i in range(len(bl_isi))] for bl_shuff in bl_shuffles] # Recreate the spikes based on the shuffled ISI values
+bl_sdf_areas = [] # Empty array that will store the areas of each bin of the shuffled baseline
+bl_sdf_fs = [stimclass.kernel(bl_spike,baseline_train.t) for bl_spike in bl_spikes]
+stim_areas = [];
+for i in range(shuffles): # Loop through all the shuffles
+    for bi in range(len(baseline_train.bin_edges)-1): # In each shuffle, loop throuhg each bin
+        st,ed = np.where(baseline_train.t <= baseline_train.bin_edges[bi])[0][-1],np.where(baseline_train.t < baseline_train.bin_edges[bi+1])[0][-1]
+        #bl_sdf_areas.append(np.trapz(baseline_train.sdf[st:ed+1],x=baseline_train.t[st:ed+1])) # Find the area of the baseline SDF of the bin and append to array
+        bl_sdf_areas.append(np.trapz(bl_sdf_fs[i][st:ed+1],x=baseline_train.t[st:ed+1]))
+for i in range(len(stim_data_train.bin_edges)-1): # Iterate through each bin
+    st,ed = np.where(stim_data_train.t <= stim_data_train.bin_edges[i])[0][-1],np.where(stim_data_train.t < stim_data_train.bin_edges[i+1])[0][-1]
+    stim_areas.append(np.trapz(stim_data_train.sdf[st:ed+1],x=stim_data_train.t[st:ed+1]))
+    if np.percentile(bl_sdf_areas,percentile) < np.trapz(stim_data_train.sdf[st:ed+1],x=stim_data_train.t[st:ed+1]): # See if area of bin is beyond the percentile of the baseline shuffled areas
+        axes[2].fill_between(stim_data_train.t[st:ed+1],stim_data_train.sdf[st:ed+1],color="blue",alpha=0.5) # Fill the area of the SDF that is beyond the percentile of the baseline areas
+        results[i] += 1 # Make the classification of the bin a 1 indicating it is excited
+axes[0].hist(bl_sdf_areas,bins=20,color="gray",edgecolor="black") # Create a histogram of all the baseline SDF areas
+axes[0].vlines(np.percentile(bl_sdf_areas,percentile),axes[0].get_ylim()[0],axes[0].get_ylim()[1],color="k",linestyle="dashed") # Draw a verticle line where the percentile threshold is on the histogram
+axes[0].set_xlabel("Baseline SDF Area Bins"); axes[0].set_ylabel("Count") # Label the histogram axes
+axes[0].text(40,31,"99th Percentile",fontsize=8,fontweight="bold",color="gray")
+axes[0].annotate("", xy=(np.percentile(bl_sdf_areas,percentile), 28), xytext=(40, 32), arrowprops=dict(arrowstyle="-|>",color="k"))
+
+axes[1].bar(list(range(1,len(stim_areas)+1)),stim_areas,color='gray',edgecolor="black",width=1)
+axes[1].hlines(np.percentile(bl_sdf_areas,percentile),1,len(stim_areas),color="k",linestyle="dashed")
+axes[1].set_xlabel("Time (s)"); axes[1].set_ylabel("Stimulus SDF Area")
+axes[1].set_xlim([0.5,20.5])
+axes[1].set_xticks(np.arange(0.5,24.5,4))
+axes[1].set_xticklabels(np.arange(0,12,2))
+
+axes[2].plot(stim_data_train.t,stim_data_train.sdf,color="blue",label="Stim ISI Interpolation") # Plot the SDF as a function of t
+axes[2].scatter(stim_data_train.spikes,np.zeros(len(stim_data_train.spikes)),marker="|",color="k")
+axes[2].set_xlabel("Time (s)"); axes[2].set_ylabel("SDF (sps)") # Label the SDF axes
+axes[2].set_xlim([0,10])
 
 ### INHIBITION ###
 results = np.zeros(len(stim_data_train.bin_edges)-1) # Create empty array that will store the classifications of each bin
@@ -63,10 +99,10 @@ for i in range(len(stim_data_train.bin_edges)-1): # Iterate through each bin
         st,ed = np.where(stim_data_train.t <= stim_data_train.bin_edges[i])[0][-1],np.where(stim_data_train.t < stim_data_train.bin_edges[i+1])[0][-1]
         isi_stim_bin = stim_data_train.isif[st:ed+1] # Find the SDF of the bin
         if stim_data_train.spikes[0] >= np.percentile(bl_isif_areas,percentile):
-            axes[2].fill_between(stim_data_train.t[0:st],stim_data_train.isif[0:st],color="blue",alpha=0.5)
+            axes[5].fill_between(stim_data_train.t[0:st],stim_data_train.isif[0:st],color="blue",alpha=0.5)
             results[0:i] += 1
         if np.percentile(bl_isif_areas,percentile) < np.trapz(isi_stim_bin,x=stim_data_train.t[st:ed+1]): # See if area of bin is beyond the percentile of the baseline shuffled areas
-            axes[2].fill_between(stim_data_train.t[st:ed+1],isi_stim_bin,color="blue",alpha=0.5) # Fill the area of the SDF that is beyond the percentile of the baseline areas
+            axes[5].fill_between(stim_data_train.t[st:ed+1],isi_stim_bin,color="blue",alpha=0.5) # Fill the area of the SDF that is beyond the percentile of the baseline areas
             results[i] += 1 # Make the classification of the bin a 1 indicating it is excited
         stim_areas.append(np.trapz(isi_stim_bin,x=stim_data_train.t[st:ed+1]))
     elif i == last_bin_edge:
@@ -75,75 +111,34 @@ for i in range(len(stim_data_train.bin_edges)-1): # Iterate through each bin
         stim_areas.append(np.trapz(isi_stim_bin,x=stim_data_train.t[st:ed+1]))
         if stim_data_train.time-stim_data_train.spikes[-1] >= np.percentile(bl_isif_areas,percentile) and i != len(stim_data_train.bin_edges)-2:
             results[i+1:] += 1
-            axes[2].fill_between(stim_data_train.t[ed+1:],stim_data_train.isif[ed+1:],color="blue",alpha=0.5)
+            axes[5].fill_between(stim_data_train.t[ed+1:],stim_data_train.isif[ed+1:],color="blue",alpha=0.5)
         if np.percentile(bl_isif_areas,percentile) < np.trapz(isi_stim_bin,x=stim_data_train.t[st:ed+1]): # See if area of bin is beyond the percentile of the baseline shuffled areas
-            axes[2].fill_between(stim_data_train.t[st:ed+1],isi_stim_bin,color="blue",alpha=0.5) # Fill the area of the SDF that is beyond the percentile of the baseline areas
+            axes[5].fill_between(stim_data_train.t[st:ed+1],isi_stim_bin,color="blue",alpha=0.5) # Fill the area of the SDF that is beyond the percentile of the baseline areas
             results[i] += 1 # Make the classification of the bin a 1 indicating it is excited
     elif i > first_bin_edge and i < last_bin_edge:
         st,ed = np.where(stim_data_train.t <= stim_data_train.bin_edges[i])[0][-1],np.where(stim_data_train.t < stim_data_train.bin_edges[i+1])[0][-1]
         isi_stim_bin = stim_data_train.isif[st:ed+1] # Find the SDF of the bin
         if np.percentile(bl_isif_areas,percentile) < np.trapz(isi_stim_bin,x=stim_data_train.t[st:ed+1]): # See if area of bin is beyond the percentile of the baseline shuffled areas
-            axes[2].fill_between(stim_data_train.t[st:ed+1],isi_stim_bin,color="blue",alpha=0.5) # Fill the area of the SDF that is beyond the percentile of the baseline areas
+            axes[5].fill_between(stim_data_train.t[st:ed+1],isi_stim_bin,color="blue",alpha=0.5) # Fill the area of the SDF that is beyond the percentile of the baseline areas
             results[i] += 1 # Make the classification of the bin a 1 indicating it is excited
         stim_areas.append(np.trapz(isi_stim_bin,x=stim_data_train.t[st:ed+1]))
-axes[0].hist(bl_isif_areas,bins=20,color="gray",edgecolor="black") # Create a histogram of all the baseline SDF areas
-axes[0].vlines(np.percentile(bl_isif_areas,percentile),axes[0].get_ylim()[0],axes[0].get_ylim()[1],color="k",linestyle="dashed") # Draw a verticle line where the percentile threshold is on the histogram
-axes[0].set_xlabel("Baseline ISI Area Bins"); axes[0].set_ylabel("Count") # Label the histogram axes
-axes[0].text(0.012,40,"99th Percentile",fontsize=8,fontweight="bold",color="gray")
-axes[0].annotate("", xy=(np.percentile(bl_isif_areas,percentile), 38), xytext=(0.0165, 42), arrowprops=dict(arrowstyle="-|>",color="k"))
-
-axes[1].bar(list(range(1,len(stim_areas)+1)),stim_areas,color='gray',edgecolor="black",width=1)
-axes[1].hlines(np.percentile(bl_isif_areas,percentile),1,len(stim_areas),color="k",linestyle="dashed")
-axes[1].set_xlabel("Time (s)"); axes[1].set_ylabel("Stimulus ISIF Area")
-axes[1].set_xlim([0.5,20.5])
-axes[1].set_xticks(np.arange(0.5,24.5,4))
-axes[1].set_xticklabels(np.arange(0,12,2))
-
-axes[2].plot(stim_data_train.t,stim_data_train.isif,color="blue",label="Stim ISI Interpolation") # Plot the SDF as a function of t
-#axes[2].vlines(stim_data_train.bin_edges,axes[2].get_ylim()[0],axes[2].get_ylim()[1],color="k",linestyle="dashed",alpha=0.5) # Draw vertical lines for bin edges on the SDF stimulus plot
-axes[2].scatter(stim_data_train.spikes,np.zeros(len(stim_data_train.spikes)),marker="|",color="k")
-axes[2].set_xlabel("Time(s)"); axes[2].set_ylabel("ISIF") # Label the SDF axes
-axes[2].set_xlim([0,10])
-
-
-### EXCITATION ###
-results = np.zeros(len(stim_data_train.bin_edges)-1) # Create empty array that will store the classifications of each bin
-bl_isi = np.diff(baseline_train.spikes) # Find the baseline ISI values
-bl_shuffles = [np.random.permutation(bl_isi) if x > 0 else bl_isi for x in range(10)] # Shuffle the bl ISI values for shuffles number of times
-bl_spikes = [[baseline_train.spikes[0]+sum(bl_shuff[0:i]) if i > 0 else baseline_train.spikes[0] for i in range(len(bl_isi))] for bl_shuff in bl_shuffles] # Recreate the spikes based on the shuffled ISI values
-bl_sdf_areas = [] # Empty array that will store the areas of each bin of the shuffled baseline
-bl_sdf_fs = [stimclass.kernel(bl_spike,baseline_train.t) for bl_spike in bl_spikes]
-stim_areas = [];
-for i in range(shuffles): # Loop through all the shuffles
-    for bi in range(len(baseline_train.bin_edges)-1): # In each shuffle, loop throuhg each bin
-        st,ed = np.where(baseline_train.t <= baseline_train.bin_edges[bi])[0][-1],np.where(baseline_train.t < baseline_train.bin_edges[bi+1])[0][-1]
-        #bl_sdf_areas.append(np.trapz(baseline_train.sdf[st:ed+1],x=baseline_train.t[st:ed+1])) # Find the area of the baseline SDF of the bin and append to array
-        bl_sdf_areas.append(np.trapz(bl_sdf_fs[i][st:ed+1],x=baseline_train.t[st:ed+1]))
-for i in range(len(stim_data_train.bin_edges)-1): # Iterate through each bin
-    st,ed = np.where(stim_data_train.t <= stim_data_train.bin_edges[i])[0][-1],np.where(stim_data_train.t < stim_data_train.bin_edges[i+1])[0][-1]
-    stim_areas.append(np.trapz(stim_data_train.sdf[st:ed+1],x=stim_data_train.t[st:ed+1]))
-    if np.percentile(bl_sdf_areas,percentile) < np.trapz(stim_data_train.sdf[st:ed+1],x=stim_data_train.t[st:ed+1]): # See if area of bin is beyond the percentile of the baseline shuffled areas
-        axes[5].fill_between(stim_data_train.t[st:ed+1],stim_data_train.sdf[st:ed+1],color="blue",alpha=0.5) # Fill the area of the SDF that is beyond the percentile of the baseline areas
-        results[i] += 1 # Make the classification of the bin a 1 indicating it is excited
-axes[3].hist(bl_sdf_areas,bins=20,color="gray",edgecolor="black") # Create a histogram of all the baseline SDF areas
-axes[3].vlines(np.percentile(bl_sdf_areas,percentile),axes[3].get_ylim()[0],axes[3].get_ylim()[1],color="k",linestyle="dashed") # Draw a verticle line where the percentile threshold is on the histogram
-axes[3].set_xlabel("Baseline SDF Area Bins"); axes[3].set_ylabel("Count") # Label the histogram axes
-axes[3].text(45,31,"99th Percentile",fontsize=8,fontweight="bold",color="gray")
-axes[3].annotate("", xy=(np.percentile(bl_sdf_areas,percentile), 28), xytext=(45, 32), arrowprops=dict(arrowstyle="-|>",color="k"))
+axes[3].hist(bl_isif_areas,bins=20,color="gray",edgecolor="black") # Create a histogram of all the baseline SDF areas
+axes[3].vlines(np.percentile(bl_isif_areas,percentile),axes[3].get_ylim()[0],axes[3].get_ylim()[1],color="k",linestyle="dashed") # Draw a verticle line where the percentile threshold is on the histogram
+axes[3].set_xlabel("Baseline ISI Area Bins"); axes[3].set_ylabel("Count") # Label the histogram axes
+axes[3].text(0.0115,38,"99th Percentile",fontsize=8,fontweight="bold",color="gray")
+axes[3].annotate("", xy=(np.percentile(bl_isif_areas,percentile), 34), xytext=(0.014, 37), arrowprops=dict(arrowstyle="-|>",color="k"))
 
 axes[4].bar(list(range(1,len(stim_areas)+1)),stim_areas,color='gray',edgecolor="black",width=1)
-axes[4].hlines(np.percentile(bl_sdf_areas,percentile),1,len(stim_areas),color="k",linestyle="dashed")
-axes[4].set_xlabel("Time (s)"); axes[4].set_ylabel("Stimulus SDF Area")
+axes[4].hlines(np.percentile(bl_isif_areas,percentile),1,len(stim_areas),color="k",linestyle="dashed")
+axes[4].set_xlabel("Time (s)"); axes[4].set_ylabel("Stimulus ISIF Area")
 axes[4].set_xlim([0.5,20.5])
 axes[4].set_xticks(np.arange(0.5,24.5,4))
 axes[4].set_xticklabels(np.arange(0,12,2))
 
-axes[5].plot(stim_data_train.t,stim_data_train.sdf,color="blue",label="Stim ISI Interpolation") # Plot the SDF as a function of t
-#axes[5].vlines(stim_data_train.bin_edges,axes[5].get_ylim()[0],axes[5].get_ylim()[1],color="k",linestyle="dashed",alpha=0.5) # Draw vertical lines for bin edges on the SDF stimulus plot
+axes[5].plot(stim_data_train.t,stim_data_train.isif,color="blue",label="Stim ISI Interpolation") # Plot the SDF as a function of t
 axes[5].scatter(stim_data_train.spikes,np.zeros(len(stim_data_train.spikes)),marker="|",color="k")
-axes[5].set_xlabel("Time (s)"); axes[5].set_ylabel("SDF") # Label the SDF axes
+axes[5].set_xlabel("Time(s)"); axes[5].set_ylabel("ISIF") # Label the SDF axes
 axes[5].set_xlim([0,10])
-
 
 sns.despine(fig=fig)
 

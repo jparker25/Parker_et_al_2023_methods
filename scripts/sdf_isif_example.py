@@ -25,14 +25,10 @@ types = ["complete inhibition","partial inhibition","adapting inhibition","no ef
 df = pd.read_csv(csv)
 
 sample = df[(df["delivery"]==delivery[3]) & (df["cell_num"]==cell_nums[3]) & (df["neural_response"] == types[3]) & (df["mouse"]==mouse[3])]
-print(sample)
 cell_dir = sample["cell_dir"].values[0]
 neuron = pickle.load(open(f"{cell_dir}/neuron.obj","rb"))
 trial = 5;
 train = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/stimulus_data/stimulus_spike_train.txt")
-
-#fig, ax = plt.subplots(3,2,figsize=(8,6),dpi=300)
-#axes = [ax[0,0],ax[1,0],ax[2,0],ax[0,1],ax[1,1],ax[2,1]]
 
 fig = plt.figure(figsize=(8,6),dpi=300)
 gs = fig.add_gridspec(4,4)
@@ -57,14 +53,11 @@ arrow_isif = patches.ConnectionPatch(isifA,isifB,coordsA=axes[0].transData,coord
 fig.patches.append(arrow_sdf)
 fig.patches.append(arrow_isif)
 
-
-
-
 time = np.linspace(0,10,10*1000)
 bandwidth = 25/1000;
 for spike in train:
     gaus = stimclass.gaussian(time-spike,bandwidth)
-    axes[1].plot(time,gaus,color="blue")
+    axes[1].plot(time,gaus,color="gray")
     axes[2].plot(time,gaus,color="gray")
 sdf = stimclass.kernel(train,time)
 axes[2].plot(time,sdf,color="blue")
@@ -76,24 +69,47 @@ axes[2].scatter(train,np.ones(len(train))*-5,marker="|",s=50,color="k")
 axes[3].scatter(train,np.ones(len(train))*-5,marker="|",s=50,color="k")
 axes[3].plot(time,sdf,color="blue")
 
+axes[1].set_ylabel("SDF (sps)")
+axes[2].set_ylabel("SDF (sps)")
+axes[3].set_ylabel("SDF (sps)")
+
 
 
 axes[4].scatter(train,np.zeros(len(train))*-0.2,marker="|",s=50,color="k")
-axes[4].plot(train[:-1],np.diff(train),color="blue")
+axes[4].plot(train[:-1],np.diff(train),color="gray")
 axes[4].set_xlim([7.5,8])
 
 axes[5].scatter(train,np.zeros(len(train))*-2,marker="|",s=50,color="k")
 isif = stimclass.isi_function(train,time,avg=250)
 axes[5].plot(train[:-1],np.diff(train),color="gray")
 axes[5].plot(time,isif,color="blue")
+tpt = np.where(time >= 7.75)[0][0]
+linterp = np.interp(time,train[:-1],np.diff(train))
+axes[5].scatter(time[tpt],isif[tpt],marker="x",color="red",s=20)
+linterp_examp = patches.Rectangle((time[tpt-125],0),250/1000,0.2,fill=False,color="red",linewidth=0.5,linestyle="dashed")
+axes[5].add_patch(linterp_examp)
+axes[5].annotate("", xy=(time[tpt], isif[tpt]), xytext=(time[tpt], -0.025), arrowprops=dict(arrowstyle="-|>",color="red"))
+
+
+
+print(np.mean(linterp[tpt-125:tpt+125]))
+print(isif[tpt])
+print(time[tpt+125]-time[tpt-125])
+
+
+
 axes[5].set_xlim([7.5,8])
 
 axes[6].scatter(train,np.zeros(len(train))*-2,marker="|",s=50,color="k")
 axes[6].plot(time,isif,color="blue")
 
-rect_sdf = patches.Rectangle((2.25,0),0.5,40,fill=False,color="gray",linewidth=2)
+axes[4].set_ylabel("ISIF")
+axes[5].set_ylabel("ISIF")
+axes[6].set_ylabel("ISIF")
+
+rect_sdf = patches.Rectangle((2.25,0),0.5,40,fill=False,color="gray",linewidth=3)
 axes[3].add_patch(rect_sdf)
-rect_isi = patches.Rectangle((7.5,0.015),0.5,0.1,fill=False,color="gray",linewidth=2)
+rect_isi = patches.Rectangle((7.5,0.015),0.5,0.1,fill=False,color="gray",linewidth=3)
 axes[6].add_patch(rect_isi)
 
 for axe in axes[1:]:
