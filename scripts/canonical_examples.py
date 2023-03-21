@@ -6,8 +6,9 @@ import pickle,os,sys
 import seaborn as sns
 
 sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+#sys.path.append('/Users/johnparker/streac')
 
-save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results"
+save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
 delivery = "PV-DIO-ChR2 in GPe"
 csv = f"{save_direc}/comparisons/all_data.csv"
 types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]

@@ -15,3 +15,9 @@ def poisson_spike_train(rate, t_stop, t_start=0):
     # Keep spikes within the desired duration
     spikes = spikes[spikes < t_stop]
     return spikes
+
+def spike_train_generator(rate,t_stop,t_start=0,dt=1/1000):
+    samples = int(np.floor(t_stop/dt))
+    time = np.linspace(t_start,t_stop,samples)
+    spikes = time[np.random.rand(samples) <= rate*dt]
+    return spikes

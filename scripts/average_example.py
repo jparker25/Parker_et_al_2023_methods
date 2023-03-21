@@ -6,8 +6,12 @@ import pickle,os,sys
 import seaborn as sns
 
 sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+#sys.path.append('/Users/johnparker/streac')
 
-save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results"
+def norm_fcn(x,t):
+    return x / np.trapz(x,t)
+
+save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
 delivery = "PV-DIO-ChR2 in GPe"
 csv = f"{save_direc}/comparisons/all_data.csv"
 
@@ -87,7 +91,7 @@ for trial in range(1,neuron.trials+1):
     ax.plot(np.linspace(0,10,len(isif)),isif+trial)
 ax.set_yticks(list(range(1,neuron.trials+1)))
 ax.set_yticklabels(list(range(1,neuron.trials+1)),fontsize=8)
-ax.set_ylabel("Trial # ISIF",rotation=90)
+ax.set_ylabel("Trial # ISIF (s)",rotation=90)
 ax.set_xlabel("Time (s)")
 ax.set_xticks(list(range(0,12,2)))
 ax.set_xticklabels(list(range(0,12,2)),fontsize=8)

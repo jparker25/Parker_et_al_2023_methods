@@ -6,11 +6,12 @@ import pickle,os,sys
 import seaborn as sns
 
 sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+#sys.path.append('/Users/johnparker/streac')
 
 import stimulus_classification as stimclass
 
 
-save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed"
+save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
 delivery = "PV-DIO-ChR2 in GPe"
 csv = f"{save_direc}/comparisons/all_data.csv"
 types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]
@@ -137,7 +138,7 @@ axes[4].set_xticklabels(np.arange(0,12,2))
 
 axes[5].plot(stim_data_train.t,stim_data_train.isif,color="blue",label="Stim ISI Interpolation") # Plot the SDF as a function of t
 axes[5].scatter(stim_data_train.spikes,np.zeros(len(stim_data_train.spikes)),marker="|",color="k")
-axes[5].set_xlabel("Time(s)"); axes[5].set_ylabel("ISIF") # Label the SDF axes
+axes[5].set_xlabel("Time(s)"); axes[5].set_ylabel("ISIF (s)") # Label the SDF axes
 axes[5].set_xlim([0,10])
 
 sns.despine(fig=fig)

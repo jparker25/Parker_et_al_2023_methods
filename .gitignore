@@ -1,6 +1,7 @@
 # User added
 .DS_Store
 figures/*pdf
+scripts/*txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

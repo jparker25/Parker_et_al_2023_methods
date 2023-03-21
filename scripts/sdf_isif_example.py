@@ -6,10 +6,11 @@ import pickle,os,sys
 import seaborn as sns
 
 sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+#sys.path.append('/Users/johnparker/streac')
 
 import stimulus_classification as stimclass
 
-save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results"
+save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
 delivery = "PV-DIO-ChR2 in GPe"
 csv = f"{save_direc}/comparisons/all_data.csv"
 types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]
@@ -91,7 +92,18 @@ axes[5].add_patch(linterp_examp)
 axes[5].annotate("", xy=(time[tpt], isif[tpt]), xytext=(time[tpt], -0.025), arrowprops=dict(arrowstyle="-|>",color="red"))
 
 
+isif2 = stimclass.isi_function(train,time,avg=249)
 
+print(np.mean(linterp[tpt-124:tpt+125]))
+print(isif2[tpt])
+print()
+
+
+
+print((np.mean(linterp[0:125])))
+print(isif[0])
+
+print()
 print(np.mean(linterp[tpt-125:tpt+125]))
 print(isif[tpt])
 print(time[tpt+125]-time[tpt-125])
@@ -103,9 +115,9 @@ axes[5].set_xlim([7.5,8])
 axes[6].scatter(train,np.zeros(len(train))*-2,marker="|",s=50,color="k")
 axes[6].plot(time,isif,color="blue")
 
-axes[4].set_ylabel("ISIF")
-axes[5].set_ylabel("ISIF")
-axes[6].set_ylabel("ISIF")
+axes[4].set_ylabel("ISIF (s)")
+axes[5].set_ylabel("ISIF (s)")
+axes[6].set_ylabel("ISIF (s)")
 
 rect_sdf = patches.Rectangle((2.25,0),0.5,40,fill=False,color="gray",linewidth=3)
 axes[3].add_patch(rect_sdf)

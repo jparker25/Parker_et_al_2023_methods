@@ -7,6 +7,7 @@ import string
 import seaborn as sns
 
 sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+#sys.path.append('/Users/johnparker/streac')
 
 import poisson_spike_train as poisson
 import stimulus_classification as stimclass
