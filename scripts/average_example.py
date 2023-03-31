@@ -5,15 +5,16 @@ import pandas as pd
 import pickle,os,sys
 import seaborn as sns
 
-sys.path.append('/Users/johnparker/neural_response_classification/python_code')
-#sys.path.append('/Users/johnparker/streac')
+#sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+sys.path.append('/Users/johnparker/streac')
 
 def norm_fcn(x,t):
     return x / np.trapz(x,t)
 
-save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
+#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
+save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
 delivery = "PV-DIO-ChR2 in GPe"
-csv = f"{save_direc}/comparisons/all_data.csv"
+csv = f"{save_direc}/all_data.csv"
 
 df = pd.read_csv(csv)
 

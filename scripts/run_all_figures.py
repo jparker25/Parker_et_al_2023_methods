@@ -1,5 +1,3 @@
-import os,sys
-
 from helpers import *
 
 run_cmd("python baseline_shuffling_example.py")

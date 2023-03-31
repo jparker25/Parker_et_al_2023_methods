@@ -4,11 +4,13 @@ import os,sys
 from scipy import signal
 from scipy.fft import fft, fftfreq
 
-sys.path.append('/Users/johnparker/neural_response_classification/python_code')
-#sys.path.append('/Users/johnparker/streac')
+#sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+sys.path.append('/Users/johnparker/streac')
 
 import poisson_spike_train as poisson
-import stimulus_classification as stimclass
+#import stimulus_classification as stimclass
+import excitation_check as exch
+import inhibition_check as inch
 from helpers import *
 
 
@@ -26,15 +28,15 @@ mu = 25;
 spikes = poisson.spike_train_generator(rate,tf,t_start=0)
 
 time = np.linspace(0,tf,tf*1000)
-sdf = stimclass.kernel(spikes,time,bandwidth=sigma/1000)
-sdf75 = stimclass.kernel(spikes,time,bandwidth=sigma*3/1000)
-sdf250 = stimclass.kernel(spikes,time,bandwidth=sigma*10/1000)
-isif = stimclass.isi_function(spikes,time,avg=mu)
-isif250 = stimclass.isi_function(spikes,time,avg=mu*10)
+sdf = exch.kernel(spikes,time,bandwidth=sigma/1000)
+sdf75 = exch.kernel(spikes,time,bandwidth=sigma*3/1000)
+sdf250 = exch.kernel(spikes,time,bandwidth=sigma*10/1000)
+isif = inch.isi_function(spikes,time,avg=mu)
+isif250 = inch.isi_function(spikes,time,avg=mu*10)
 
 '''
 tspikes = poisson.spike_train_generator(rate,tf,t_start=0)
-mmean = stimclass.isi_function(tspikes,time,avg=mu)
+mmean = inch.isi_function(tspikes,time,avg=mu)
 plt.figure()
 plt.plot(time,mmean)
 plt.scatter(tspikes,np.zeros(tspikes.shape[0]),marker="|",s=50,color="k")

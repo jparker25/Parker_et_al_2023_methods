@@ -5,15 +5,18 @@ import pandas as pd
 import pickle,os,sys
 import seaborn as sns
 
-sys.path.append('/Users/johnparker/neural_response_classification/python_code')
-#sys.path.append('/Users/johnparker/streac')
+#sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+sys.path.append('/Users/johnparker/streac')
 
-import stimulus_classification as stimclass
+#import stimulus_classification as stimclass
+import excitation_check as exch
+import inhibition_check as inch
 
 
-save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
+#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
+save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
 delivery = "PV-DIO-ChR2 in GPe"
-csv = f"{save_direc}/comparisons/all_data.csv"
+csv = f"{save_direc}/all_data.csv"
 types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]
 
 df = pd.read_csv(csv)
@@ -35,7 +38,7 @@ isi_stim = stim_data_train.isif# Create SDF for baseline and stimulus spikes
 bl_isi = np.diff(baseline_train.spikes) # Find the baseline ISI values
 bl_shuffles = [np.random.permutation(bl_isi) if x > 0 else bl_isi for x in range(10)] # Shuffle the bl ISI values for shuffles number of times
 bl_spikes = [[baseline_train.spikes[0]+sum(bl_shuff[0:i]) if i > 0 else baseline_train.spikes[0] for i in range(len(bl_isi))] for bl_shuff in bl_shuffles] # Recreate the spikes based on the shuffled ISI values
-bl_isi_fs = [stimclass.isi_function(bl_spike,baseline_train.t) for bl_spike in bl_spikes]
+bl_isi_fs = [inch.isi_function(bl_spike,baseline_train.t) for bl_spike in bl_spikes]
 stim_areas = [];
 bl_isif_areas = [] # Empty array that will store the areas of each bin of the shuffled baseline
 for i in range(shuffles): # Loop through all the shuffles
@@ -77,7 +80,7 @@ bl_isi = np.diff(baseline_train.spikes) # Find the baseline ISI values
 bl_shuffles = [np.random.permutation(bl_isi) if x > 0 else bl_isi for x in range(10)] # Shuffle the bl ISI values for shuffles number of times
 bl_spikes = [[baseline_train.spikes[0]+sum(bl_shuff[0:i]) if i > 0 else baseline_train.spikes[0] for i in range(len(bl_isi))] for bl_shuff in bl_shuffles] # Recreate the spikes based on the shuffled ISI values
 bl_sdf_areas = [] # Empty array that will store the areas of each bin of the shuffled baseline
-bl_sdf_fs = [stimclass.kernel(bl_spike,baseline_train.t) for bl_spike in bl_spikes]
+bl_sdf_fs = [exch.kernel(bl_spike,baseline_train.t) for bl_spike in bl_spikes]
 stim_areas = [];
 for i in range(shuffles): # Loop through all the shuffles
     for bi in range(len(baseline_train.bin_edges)-1): # In each shuffle, loop throuhg each bin

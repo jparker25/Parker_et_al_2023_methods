@@ -5,8 +5,8 @@ import pandas as pd
 import pickle,os,sys
 import seaborn as sns
 
-sys.path.append('/Users/johnparker/neural_response_classification/python_code')
-#sys.path.append('/Users/johnparker/streac')
+#sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+sys.path.append('/Users/johnparker/streac')
 
 def ai_example(csv,cell_num=34,delivery="PV-DIO-ChR2 in GPe",mouse="6-OHDA mice"):
     df = pd.read_csv(csv)
@@ -519,9 +519,10 @@ def other_example_peri(csv,cell_num=34,delivery="PV-DIO-ChR2 in GPe",mouse="6-OH
 
 
 
-save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
+#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
+save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
 delivery = "PV-DIO-ChR2 in GPe"
-csv = f"{save_direc}/comparisons/all_data.csv"
+csv = f"{save_direc}/all_data.csv"
 types = ["complete inhibition","partial inhibition","adapting inhibition","no effect","excitation","biphasic IE","biphasic EI"]
 types_abbrev = ["CI","PI","AI","NE","EX","BPIE","BPEI"]
 

@@ -5,14 +5,17 @@ import pandas as pd
 import pickle,os,sys
 import seaborn as sns
 
-sys.path.append('/Users/johnparker/neural_response_classification/python_code')
-#sys.path.append('/Users/johnparker/streac')
+#sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+sys.path.append('/Users/johnparker/streac')
 
-import stimulus_classification as stimclass
+#import stimulus_classification as stimclass
+import excitation_check as exch
+import inhibition_check as inch
 
-save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
+#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
+save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
 delivery = "PV-DIO-ChR2 in GPe"
-csv = f"{save_direc}/comparisons/all_data.csv"
+csv = f"{save_direc}/all_data.csv"
 types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]
 
 cell_nums = [106,17,110,78,92,66,49]
@@ -57,10 +60,10 @@ fig.patches.append(arrow_isif)
 time = np.linspace(0,10,10*1000)
 bandwidth = 25/1000;
 for spike in train:
-    gaus = stimclass.gaussian(time-spike,bandwidth)
+    gaus = exch.gaussian(time-spike,bandwidth)
     axes[1].plot(time,gaus,color="gray")
     axes[2].plot(time,gaus,color="gray")
-sdf = stimclass.kernel(train,time)
+sdf = exch.kernel(train,time)
 axes[2].plot(time,sdf,color="blue")
 axes[1].set_xlim([2.25,2.75])
 axes[2].set_xlim([2.25,2.75])
@@ -81,7 +84,7 @@ axes[4].plot(train[:-1],np.diff(train),color="gray")
 axes[4].set_xlim([7.5,8])
 
 axes[5].scatter(train,np.zeros(len(train))*-2,marker="|",s=50,color="k")
-isif = stimclass.isi_function(train,time,avg=250)
+isif = inch.isi_function(train,time,avg=250)
 axes[5].plot(train[:-1],np.diff(train),color="gray")
 axes[5].plot(time,isif,color="blue")
 tpt = np.where(time >= 7.75)[0][0]
@@ -92,7 +95,7 @@ axes[5].add_patch(linterp_examp)
 axes[5].annotate("", xy=(time[tpt], isif[tpt]), xytext=(time[tpt], -0.025), arrowprops=dict(arrowstyle="-|>",color="red"))
 
 
-isif2 = stimclass.isi_function(train,time,avg=249)
+isif2 = inch.isi_function(train,time,avg=249)
 
 print(np.mean(linterp[tpt-124:tpt+125]))
 print(isif2[tpt])

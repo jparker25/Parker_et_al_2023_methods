@@ -6,11 +6,13 @@ import pickle,os,sys, time, string
 import seaborn as sns
 from datetime import datetime, timedelta
 
-sys.path.append('/Users/johnparker/neural_response_classification/python_code')
-#sys.path.append('/Users/johnparker/streac')
+#sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+sys.path.append('/Users/johnparker/streac')
 
 import poisson_spike_train as poisson
-import stimulus_classification as stimclass
+#import stimulus_classification as stimclass
+import excitation_check as exch
+import inhibition_check as inch
 from helpers import *
 
 def normalize_fcn(x,t):
@@ -21,7 +23,7 @@ def find_baseline_areas(spikes,bin_edges,tt,isISIF,shuffles=10,norm=False,avg=25
     bl_isi = np.diff(spikes) # Find the baseline ISI values
     bl_shuffles = [np.random.permutation(bl_isi) if x > 0 else bl_isi for x in range(10)] # Shuffle the bl ISI values for shuffles number of tts
     bl_spikes = [[spikes[0]+sum(bl_shuff[0:i]) if i > 0 else spikes[0] for i in range(len(bl_isi))] for bl_shuff in bl_shuffles] # Recreate the spikes based on the shuffled ISI values
-    bl_isi_fs = [stimclass.isi_function(bl_spike,tt,avg=avg) for bl_spike in bl_spikes] if isISIF else [stimclass.kernel(bl_spike,tt,bandwidth=25/1000) for bl_spike in bl_spikes]
+    bl_isi_fs = [inch.isi_function(bl_spike,tt,avg=avg) for bl_spike in bl_spikes] if isISIF else [exch.kernel(bl_spike,tt,bandwidth=25/1000) for bl_spike in bl_spikes]
     if norm:
         for i in range(len(bl_isi_fs)):
             bl_isi_fs[i] = normalize_fcn(bl_isi_fs[i],tt)
@@ -35,7 +37,7 @@ def find_baseline_areas(spikes,bin_edges,tt,isISIF,shuffles=10,norm=False,avg=25
 
 def find_stim_areas(spikes,bin_edges,tt,isISIF,avg=250,bandwidth=25/1000):
     stim_areas = []
-    stim_isif = stimclass.isi_function(spikes,tt,avg=avg) if isISIF else stimclass.kernel(spikes,tt,bandwidth=bandwidth)
+    stim_isif = inch.isi_function(spikes,tt,avg=avg) if isISIF else exch.kernel(spikes,tt,bandwidth=bandwidth)
     for i in range(len(bin_edges)-1): 
         st,ed = np.where(tt <= bin_edges[i])[0][-1],np.where(tt < bin_edges[i+1])[0][-1]
         stim_areas.append(np.trapz(stim_isif[st:ed+1],x=tt[st:ed+1]))
@@ -68,15 +70,20 @@ low_spikes = poisson.spike_train_generator(low_rate,tf)
 high_spikes_reduced = poisson.spike_train_generator(high_rate*(100-decrease)/100,tf)
 low_spikes_reduced = poisson.spike_train_generator(low_rate*(100-decrease)/100,tf)
 
-sdf_high = stimclass.kernel(high_spikes,tt,bandwidth=sigma)
-isif_high = stimclass.isi_function(high_spikes,tt,avg=mu)
-sdf_low = stimclass.kernel(low_spikes,tt,bandwidth=sigma)
-isif_low = stimclass.isi_function(low_spikes,tt,avg=mu)
+print(high_spikes.shape[0]/tf)
+print(high_spikes_reduced.shape[0]/tf)
+print(low_spikes.shape[0]/tf)
+print(low_spikes_reduced.shape[0]/tf)
 
-sdf_high_reduced = stimclass.kernel(high_spikes_reduced,tt,bandwidth=sigma)
-isif_high_reduced = stimclass.isi_function(high_spikes_reduced,tt,avg=mu)
-sdf_low_reduced = stimclass.kernel(low_spikes_reduced,tt,bandwidth=sigma)
-isif_low_reduced = stimclass.isi_function(low_spikes_reduced,tt,avg=mu)
+sdf_high = exch.kernel(high_spikes,tt,bandwidth=sigma)
+isif_high = inch.isi_function(high_spikes,tt,avg=mu)
+sdf_low = exch.kernel(low_spikes,tt,bandwidth=sigma)
+isif_low = inch.isi_function(low_spikes,tt,avg=mu)
+
+sdf_high_reduced = exch.kernel(high_spikes_reduced,tt,bandwidth=sigma)
+isif_high_reduced = inch.isi_function(high_spikes_reduced,tt,avg=mu)
+sdf_low_reduced = exch.kernel(low_spikes_reduced,tt,bandwidth=sigma)
+isif_low_reduced = inch.isi_function(low_spikes_reduced,tt,avg=mu)
 
 
 #fig, ax = plt.subplots(5,2,figsize=(16,12),dpi=300)
@@ -253,7 +260,7 @@ axes = [fig.add_subplot(gs[:2,4:]),fig.add_subplot(gs[2:,4:])]
 axes[0].scatter(ratios[:,0],ratios[:,3],marker="o",color="blue",s=2)
 axes[0].scatter(infs[:,0],infs[:,3],marker="o",color="red",s=2)
 axes[0].hlines(1,np.min(data[:,0]),np.max(data[:,0]),color="k",linestyle="dashed")
-#axes[0].set_xlabel("Empirical Baseline Firing Rate (Hz)")
+axes[0].set_xlabel("Empirical Baseline Firing Rate (Hz)")
 axes[0].set_ylabel("Inhibited Bin Ratio: ISIF / SDF")
 #axes[0].set_xlim([0,30])
 
@@ -264,8 +271,9 @@ axes[1].hist(data[:,3],bins=np.arange(0,5,0.25),color="blue",edgecolor="k")
 
 
 #axes[1].set_xticks(hist_edges[0::2])
-axes[1].set_xlabel("Empirical Baseline Firing Rate (Hz)")
-axes[1].set_ylabel("Percentage")
+axes[1].set_xlabel("Inhibited Bin Ratio: ISIF / SDF")
+axes[1].set_ylabel("Count")
+axes[1].set_xlim([0,np.max(data[:,3])])
 #axes[1].set_xticklabels([f"{x:.2f}" for x in axes[1].get_xticks()],rotation=45)
 #axes[1].set_xlim([0,30])
 

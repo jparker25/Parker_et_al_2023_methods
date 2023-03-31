@@ -6,11 +6,13 @@ import pickle,os,sys
 import string
 import seaborn as sns
 
-sys.path.append('/Users/johnparker/neural_response_classification/python_code')
-#sys.path.append('/Users/johnparker/streac')
+#sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+sys.path.append('/Users/johnparker/streac')
 
 import poisson_spike_train as poisson
-import stimulus_classification as stimclass
+#import stimulus_classification as stimclass
+import excitation_check as exch
+import inhibition_check as inch
 
 def normalize_fcn(x,t):
     area = np.trapz(x,t)
@@ -20,7 +22,7 @@ def find_areas(spikes,bin_edges,time,isISIF,shuffles=10,norm=True):
     bl_isi = np.diff(spikes) # Find the baseline ISI values
     bl_shuffles = [np.random.permutation(bl_isi) if x > 0 else bl_isi for x in range(10)] # Shuffle the bl ISI values for shuffles number of times
     bl_spikes = [[spikes[0]+sum(bl_shuff[0:i]) if i > 0 else spikes[0] for i in range(len(bl_isi))] for bl_shuff in bl_shuffles] # Recreate the spikes based on the shuffled ISI values
-    bl_isi_fs = [stimclass.isi_function(bl_spike,time,avg=250) for bl_spike in bl_spikes] if isISIF else [stimclass.kernel(bl_spike,time,bandwidth=25/1000) for bl_spike in bl_spikes]
+    bl_isi_fs = [inch.isi_function(bl_spike,time,avg=250) for bl_spike in bl_spikes] if isISIF else [exch.kernel(bl_spike,time,bandwidth=25/1000) for bl_spike in bl_spikes]
     if norm:
         for i in range(len(bl_isi_fs)):
             bl_isi_fs[i] = normalize_fcn(bl_isi_fs[i],time)
@@ -50,15 +52,15 @@ low_spikes = poisson.poisson_spike_train(low_rate,tf)
 high_spikes_reduced = poisson.poisson_spike_train(high_rate*(100-decrease)/100,tf)
 low_spikes_reduced = poisson.poisson_spike_train(low_rate*(100-decrease)/100,tf)
 
-sdf_high = stimclass.kernel(high_spikes,time,bandwidth=sigma/1000)
-isif_high = stimclass.isi_function(high_spikes,time,avg=mu)
-sdf_low = stimclass.kernel(low_spikes,time,bandwidth=sigma/1000)
-isif_low = stimclass.isi_function(low_spikes,time,avg=mu)
+sdf_high = exch.kernel(high_spikes,time,bandwidth=sigma/1000)
+isif_high = inch.isi_function(high_spikes,time,avg=mu)
+sdf_low = exch.kernel(low_spikes,time,bandwidth=sigma/1000)
+isif_low = inch.isi_function(low_spikes,time,avg=mu)
 
-sdf_high_reduced = stimclass.kernel(high_spikes_reduced,time,bandwidth=sigma/1000)
-isif_high_reduced = stimclass.isi_function(high_spikes_reduced,time,avg=mu)
-sdf_low_reduced = stimclass.kernel(low_spikes_reduced,time,bandwidth=sigma/1000)
-isif_low_reduced = stimclass.isi_function(low_spikes_reduced,time,avg=mu)
+sdf_high_reduced = exch.kernel(high_spikes_reduced,time,bandwidth=sigma/1000)
+isif_high_reduced = inch.isi_function(high_spikes_reduced,time,avg=mu)
+sdf_low_reduced = exch.kernel(low_spikes_reduced,time,bandwidth=sigma/1000)
+isif_low_reduced = inch.isi_function(low_spikes_reduced,time,avg=mu)
 
 
 
@@ -124,7 +126,7 @@ for k in range(len(axes)):
         hist_edges = np.linspace(0,np.max([np.max(sdf_areas),np.max(isif_areas)]),21)
         sdf_percentile = np.percentile(sdf_areas,99)
         sdf_low_percentile =np.percentile(sdf_areas,1)
-        isif_percentile = np.percnetile(isif_areas,99)
+        isif_percentile = np.percentile(isif_areas,99)
         axes[k].hist(sdf_areas,bins=hist_edges,alpha=0.5,label="SDF",edgecolor="k",color="blue")
         axes[k].hist(isif_areas,bins=hist_edges,alpha=0.5,color="red",label="ISIF",edgecolor="k")
         axes[k].vlines
