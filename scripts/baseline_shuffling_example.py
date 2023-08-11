@@ -5,6 +5,7 @@ import pandas as pd
 import pickle,os,sys
 import seaborn as sns
 
+from helpers import *
 #sys.path.append('/Users/johnparker/neural_response_classification/python_code')
 sys.path.append('/Users/johnparker/streac')
 
@@ -13,15 +14,13 @@ import excitation_check as exch
 import inhibition_check as inch
 
 
-#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
-save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
-delivery = "PV-DIO-ChR2 in GPe"
+save_direc = "/Users/johnparker/Parker_et_al_2023_methods/methods_results"
 csv = f"{save_direc}/all_data.csv"
 types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]
 
 df = pd.read_csv(csv)
 
-sample = df[(df["delivery"]=="hsyn-ChR2 in GPe") & (df["cell_num"]==62) & (df["mouse"]=="Naive mice")]
+sample = df[(df["group"] == "Naive_mice_hsyn-ChR2_in_GPe") & (df["cell_num"]==62)]
 
 cell_dir = sample["cell_dir"].values[0]
 neuron = pickle.load(open(f"{cell_dir}/neuron.obj","rb"))
@@ -121,16 +120,7 @@ axes[4].hist(bl_isif_areas,bins=20,color="gray",edgecolor="black") # Create a hi
 axes[4].vlines(np.percentile(bl_isif_areas,percentile),axes[4].get_ylim()[0],axes[4].get_ylim()[1],color="k",linestyle="dashed") # Draw a verticle line where the percentile threshold is on the histogram
 axes[4].set_xlabel("Baseline ISIF Area Bins"); axes[4].set_ylabel("Count") # Label the histogram axes
 
-sns.despine(fig=fig)
-
-for axe in axes:
-    for i in ['left','right','top','bottom']:
-        if i != 'left' and i != 'bottom':
-            axe.spines[i].set_visible(False)
-            axe.tick_params('both', width=0)
-        else:
-            axe.spines[i].set_linewidth(3)
-            axe.tick_params('both', width=0)
+makeNice(axes)
     
 labels = ["A","B","C","D","E","F","G"]
 for i in range(len(axes)):

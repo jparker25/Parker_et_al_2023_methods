@@ -2,6 +2,9 @@
 .DS_Store
 figures/*pdf
 scripts/*txt
+methods_results/*
+examples_old/*
+examples/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

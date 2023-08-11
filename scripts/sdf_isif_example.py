@@ -1,9 +1,10 @@
 import numpy as np
-from matplotlib import lines,pyplot as plt
+from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 import pandas as pd
 import pickle,os,sys
-import seaborn as sns
+
+from helpers import *
 
 #sys.path.append('/Users/johnparker/neural_response_classification/python_code')
 sys.path.append('/Users/johnparker/streac')
@@ -12,23 +13,16 @@ sys.path.append('/Users/johnparker/streac')
 import excitation_check as exch
 import inhibition_check as inch
 
-#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
-save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
+
+save_direc = "/Users/johnparker/Parker_et_al_2023_methods/methods_results"
 delivery = "PV-DIO-ChR2 in GPe"
 csv = f"{save_direc}/all_data.csv"
-types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]
 
-cell_nums = [106,17,110,78,92,66,49]
-delivery = ["hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","PV-DIO-ChR2 in GPe"]
-
-cell_nums = [39,105,90,49,78,89,73]
-delivery = ["hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","PV-DIO-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe"]
-mouse = ["Naive mice","Naive mice","6-OHDA mice","6-OHDA mice","6-OHDA mice","Naive mice","Naive mice"]
-types = ["complete inhibition","partial inhibition","adapting inhibition","no effect","excitation","biphasic IE","biphasic EI"]
+group = "6-OHDA_mice_PV-DIO-ChR2_in_GPe"
 
 df = pd.read_csv(csv)
 
-sample = df[(df["delivery"]==delivery[3]) & (df["cell_num"]==cell_nums[3]) & (df["neural_response"] == types[3]) & (df["mouse"]==mouse[3])]
+sample = df[(df["group"]==group) & (df["cell_num"] == 49)]
 cell_dir = sample["cell_dir"].values[0]
 neuron = pickle.load(open(f"{cell_dir}/neuron.obj","rb"))
 trial = 5;
@@ -94,24 +88,7 @@ linterp_examp = patches.Rectangle((time[tpt-125],0),250/1000,0.2,fill=False,colo
 axes[5].add_patch(linterp_examp)
 axes[5].annotate("", xy=(time[tpt], isif[tpt]), xytext=(time[tpt], -0.025), arrowprops=dict(arrowstyle="-|>",color="red"))
 
-
 isif2 = inch.isi_function(train,time,avg=249)
-
-print(np.mean(linterp[tpt-124:tpt+125]))
-print(isif2[tpt])
-print()
-
-
-
-print((np.mean(linterp[0:125])))
-print(isif[0])
-
-print()
-print(np.mean(linterp[tpt-125:tpt+125]))
-print(isif[tpt])
-print(time[tpt+125]-time[tpt-125])
-
-
 
 axes[5].set_xlim([7.5,8])
 
@@ -126,17 +103,8 @@ rect_sdf = patches.Rectangle((2.25,0),0.5,40,fill=False,color="gray",linewidth=3
 axes[3].add_patch(rect_sdf)
 rect_isi = patches.Rectangle((7.5,0.015),0.5,0.1,fill=False,color="gray",linewidth=3)
 axes[6].add_patch(rect_isi)
-
-for axe in axes[1:]:
-    for i in ['left','right','top','bottom']:
-        if i != 'left' and i != 'bottom':
-            axe.spines[i].set_visible(False)
-            axe.tick_params('both', width=0)
-        else:
-            axe.spines[i].set_linewidth(3)
-            axe.tick_params('both', width=0)
     
-
+makeNice(axes[1:])
 labels = ["A","B","C","D","E","F","G"]
 for i in range(len(axes)):
     axes[i].text(0.03,0.98,labels[i],fontsize=16,transform=axes[i].transAxes,fontweight="bold",color="gray")

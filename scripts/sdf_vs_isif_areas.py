@@ -5,6 +5,7 @@ import pandas as pd
 import pickle,os,sys, time, string
 import seaborn as sns
 from datetime import datetime, timedelta
+import scipy.optimize as sciop
 
 #sys.path.append('/Users/johnparker/neural_response_classification/python_code')
 sys.path.append('/Users/johnparker/streac')
@@ -18,6 +19,9 @@ from helpers import *
 def normalize_fcn(x,t):
     area = np.trapz(x,t)
     return x/area
+
+def func(x,a,b):
+    return a/x + b
 
 def find_baseline_areas(spikes,bin_edges,tt,isISIF,shuffles=10,norm=False,avg=250):
     bl_isi = np.diff(spikes) # Find the baseline ISI values
@@ -50,7 +54,7 @@ def isif_sdf_ratio(stim_sdf_areas,baseline_sdf_percentile,stim_isif_areas,baseli
 
 np.random.seed(24);
 
-high_rate = 30; 
+high_rate = 40; 
 low_rate = 10;
 decrease = 50;
 
@@ -239,7 +243,6 @@ ratios = data[(data[:,2] > 0) & (data[:,1] > 0)]
 infs = data[(data[:,2] == 0) & (data[:,1] > 0)]
 sdfs = data[(data[:,1] == 0) & (data[:,2] > 0)]
 
-
 hist_bins = 20;
 hist_min = np.floor(np.min(data[:,0]))
 hist_max = np.ceil(np.max(data[:,0]))
@@ -255,14 +258,20 @@ print(ratios[ratios[:,-1]>1].shape[0],infs.shape[0],(ratios[ratios[:,-1]>1].shap
 print(ratios.shape[0],infs.shape[0],sdfs.shape[0])
 
 axes = [fig.add_subplot(gs[:2,4:]),fig.add_subplot(gs[2:,4:])]
-#axes = [ax[4,0],ax[4,1]]
+
+popt, pcov = sciop.curve_fit(func,ratios[:,0],ratios[:,3])
+print(popt)
+xfunc = np.linspace(np.min(ratios[:,0]),np.max(ratios[:,0]),1000)
+print(popt[0]/(1-popt[1]))
+axes[0].scatter(popt[0]/(1-popt[1]),1,color="red",marker="*",s=400,zorder=15,edgecolor="k")
 
 axes[0].scatter(ratios[:,0],ratios[:,3],marker="o",color="blue",s=2)
 axes[0].scatter(infs[:,0],infs[:,3],marker="o",color="red",s=2)
+axes[0].plot(xfunc,func(xfunc,*popt),color="red",lw=3)
 axes[0].hlines(1,np.min(data[:,0]),np.max(data[:,0]),color="k",linestyle="dashed")
 axes[0].set_xlabel("Empirical Baseline Firing Rate (Hz)")
 axes[0].set_ylabel("Inhibited Bin Ratio: ISIF / SDF")
-#axes[0].set_xlim([0,30])
+axes[0].set_ylim([0.5,4])
 
 #axes[1].bar(hist_edges[:-1],hist,color="gray",edgecolor="k",width=np.mean(np.diff(hist_edges)))
 #axes[1].hlines(50,hist_edges[0]-np.mean(np.diff(hist_edges))/2,hist_edges[-1]+np.mean(np.diff(hist_edges))/2,color="k",linestyle="dashed")
@@ -282,41 +291,9 @@ for i in range(len(axes)):
     axes[i].text(0.03,0.98,labels[i],fontsize=16,transform=axes[i].transAxes,fontweight="bold",color="gray")
 
 makeNice(axes)
-#plt.tight_layout()
 
 
 plt.savefig("../figures/sdf_vs_isif_areas_combo.pdf")
 plt.close()
 os.system(f"open ../figures/sdf_vs_isif_areas_combo.pdf")
-
-
-
-
-'''
-fig, ax = plt.subplots(1,2,figsize=(8,4),dpi=300)
-axes = [ax[0],ax[1]]
-axes[0].scatter(ratios[:,0],ratios[:,3],marker="o",color="blue",s=2)
-#axes[0].scatter(infs[:,0],infs[:,3],marker="o",color="red",s=2)
-axes[0].hlines(1,np.min(data[:,0]),np.max(data[:,0]),color="k",linestyle="dashed")
-axes[0].set_xlabel("Empirical Baseline Rate (Hz)")
-axes[0].set_ylabel("Inhibited Bin Ratio: ISIF / SDF")
-#axes[0].set_xlim([0,30])
-
-axes[1].bar(hist_edges[:-1],hist,color="gray",edgecolor="k",width=np.mean(np.diff(hist_edges)))
-axes[1].hlines(50,hist_edges[0],hist_edges[-1],color="k",linestyle="dashed")
-
-
-axes[1].set_xticks(hist_edges[:-1])
-axes[1].set_xlabel("Firing Rate (Hz)")
-axes[1].set_ylabel("Percentage ISIF bins > SDF bins")
-axes[1].set_xticklabels([f"{x:.2f}" for x in axes[1].get_xticks()],rotation=45)
-#axes[1].set_xlim([0,30])
-
-makeNice(axes)
-plt.savefig("../figures/multi_runs_sdf_isif_areas.pdf")
-plt.close()
-
-os.system(f"open ../figures/multi_runs_sdf_isif_areas.pdf")
-'''
-
 

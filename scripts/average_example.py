@@ -11,31 +11,20 @@ sys.path.append('/Users/johnparker/streac')
 def norm_fcn(x,t):
     return x / np.trapz(x,t)
 
-#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
-save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
-delivery = "PV-DIO-ChR2 in GPe"
+
+save_direc = "/Users/johnparker/Parker_et_al_2023_methods/methods_results"
 csv = f"{save_direc}/all_data.csv"
 
 df = pd.read_csv(csv)
 
-#fig, ax = plt.subplots(2,2,figsize=(8,6),dpi=300)
 fig = plt.figure(figsize=(8,6),dpi=300)
-#gs = fig.add_gridspec(4,4)
 gs = fig.add_gridspec(3,4)
-sample = df[(df["neural_response"] != "no effect") & (df["delivery"]==delivery)].sample()
-print(sample["cell_num"])
 
-#axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[2:3,0:2]),fig.add_subplot(gs[2:3,2:]),fig.add_subplot(gs[3:4,0:2]),fig.add_subplot(gs[3:,2:]),fig.add_subplot(gs[0:2,2:])]
-#axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[0,2:]),fig.add_subplot(gs[1,2:]),fig.add_subplot(gs[2:,0:2]),fig.add_subplot(gs[2:,2:])]
 axes = [fig.add_subplot(gs[:2, :2]),fig.add_subplot(gs[0,2:]),fig.add_subplot(gs[1,2:]),fig.add_subplot(gs[2,0:2]),fig.add_subplot(gs[2,2:])]
 
-#cell_num = 17
-#cell_num = 58
-cell_num = 114
-sample = df[(df["cell_num"]==cell_num) & (df["neural_response"] != "no effect") & (df["delivery"]==delivery)]
+sample = df[(df["group"]=="Naive_mice_PV-DIO-ChR2_in_GPe") & (df["cell_num"] == 114)]
 cell_dir = sample["cell_dir"].values[0]
 neuron = pickle.load(open(f"{cell_dir}/neuron.obj","rb"))
-
 ax = axes[0]
 for trial in range(1,neuron.trials+1):
     bl = np.loadtxt(f"{neuron.cell_dir}/trial_{trial:02d}/baseline_data/baseline_spike_train.txt")
@@ -115,9 +104,13 @@ for trial in range(1,neuron.trials+1):
 t = np.linspace(0,10,len(avgsdf))
 ax.plot(t,avgsdf,color="blue")
 for bi in range(len(bin_edges)-1):
+    st,ed = np.where(t <= bin_edges[bi])[0][-1],np.where(t < bin_edges[bi+1])[0][-1]
+    ax.vlines(t[st],0,avgsdf[st],linestyle="dotted",color="gray",alpha=0.5)
     if avg_bins[bi] == 2:
         st,ed = np.where(t <= bin_edges[bi])[0][-1],np.where(t < bin_edges[bi+1])[0][-1]
         ax.fill_between(t[st:ed+1],avgsdf[st:ed+1],color="blue",alpha=0.5)
+ax.vlines(t[ed],0,avgsdf[ed],linestyle="dotted",color="gray",alpha=0.5)
+ax.hlines(2*neuron.excitation_threshold,0,10,linestyle="dashed",color="gray")
 ax.set_ylabel("Average SDF (sps)")
 ax.set_xlabel("Time (s)")
 ax.set_xticks(list(range(0,12,2)))
@@ -139,9 +132,13 @@ for trial in range(1,neuron.trials+1):
 
 ax.plot(np.linspace(0,10,len(avgisif)),avgisif,color="blue")
 for bi in range(len(bin_edges)-1):
+    st,ed = np.where(t <= bin_edges[bi])[0][-1],np.where(t < bin_edges[bi+1])[0][-1]
+    ax.vlines(t[st],0,avgisif[st],linestyle="dotted",color="gray",alpha=0.5)
     if avg_bins[bi] == 1:
-        st,ed = np.where(t <= bin_edges[bi])[0][-1],np.where(t < bin_edges[bi+1])[0][-1]
         ax.fill_between(t[st:ed+1],avgisif[st:ed+1],color="blue",alpha=0.5)
+ax.vlines(t[ed],0,avgisif[ed],linestyle="dotted",color="gray",alpha=0.5)
+ax.hlines(2*neuron.inhibition_threshold,0,10,linestyle="dashed",color="gray")
+
 ax.set_ylabel("Average ISIF")
 ax.set_xlabel("Time (s)")
 ax.set_xticks(list(range(0,12,2)))

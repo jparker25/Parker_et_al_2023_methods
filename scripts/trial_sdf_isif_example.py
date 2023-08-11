@@ -11,26 +11,15 @@ sys.path.append('/Users/johnparker/streac')
 import excitation_check as exch
 import inhibition_check as inch
 
-
-#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
 save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
+save_direc = "/Users/johnparker/Parker_et_al_2023_methods/methods_results"
 delivery = "PV-DIO-ChR2 in GPe"
 csv = f"{save_direc}/all_data.csv"
 types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]
 
-'''
-cell_nums = [106,17,110,78,92,66,49]
-delivery = ["hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","PV-DIO-ChR2 in GPe"]
-
-cell_nums = [39,105,90,49,78,89,73]
-delivery = ["hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","PV-DIO-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe"]
-mouse = ["Naive mice","Naive mice","6-OHDA mice","6-OHDA mice","6-OHDA mice","Naive mice","Naive mice"]
-types = ["complete inhibition","partial inhibition","adapting inhibition","no effect","excitation","biphasic IE","biphasic EI"]
-'''
-
 df = pd.read_csv(csv)
 
-sample = df[(df["delivery"]=="hsyn-ChR2 in GPe") & (df["cell_num"]==76) & (df["mouse"]=="Naive mice")]
+sample = df[(df["group"]=="Naive_mice_hsyn-ChR2_in_GPe") & (df["cell_num"]==76) & (df["mouse"]=="Naive mice")]
 
 cell_dir = sample["cell_dir"].values[0]
 neuron = pickle.load(open(f"{cell_dir}/neuron.obj","rb"))

@@ -5,26 +5,20 @@ import pandas as pd
 import pickle,os,sys
 import seaborn as sns
 
-#sys.path.append('/Users/johnparker/neural_response_classification/python_code')
+from helpers import *
 sys.path.append('/Users/johnparker/streac')
 
-#save_direc= "/Users/johnparker/neural_response_classification/Data/PV_Hsyn_DD_Naive/Results_fixed_isif"
-save_direc = "/Users/johnparker/streac/results/gpe_pv_baseline_stimulus"
-delivery = "PV-DIO-ChR2 in GPe"
+save_direc = "/Users/johnparker/Parker_et_al_2023_methods/methods_results"
 csv = f"{save_direc}/all_data.csv"
-types = ["complete inhibition", "partial inhibition","adapting inhibition", "excitation","biphasic IE", "biphasic EI","no effect"]
-
-cell_nums = [106,17,110,78,92,66,49]
-delivery = ["hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","PV-DIO-ChR2 in GPe"]
 
 cell_nums = [39,105,90,49,78,89,73]
 delivery = ["hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","PV-DIO-ChR2 in GPe","PV-DIO-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe","hsyn-ChR2 in GPe"]
 mouse = ["Naive mice","Naive mice","6-OHDA mice","6-OHDA mice","6-OHDA mice","Naive mice","Naive mice"]
 types = ["complete inhibition","partial inhibition","adapting inhibition","no effect","excitation","biphasic IE","biphasic EI"]
 
-df = pd.read_csv(csv)
+groups = [f"{mouse[i].replace(' ','_')}_{delivery[i].replace(' ','_')}" for i in range(len(mouse))]
 
-#fig, axes = plt.subplots(7,1,figsize=(8,6),dpi=300)
+df = pd.read_csv(csv)
 
 fig = plt.figure(figsize=(10,8),dpi=300)
 gs = fig.add_gridspec(8,4)
@@ -34,13 +28,9 @@ axes = [fig.add_subplot(gs[0:2, :2]),fig.add_subplot(gs[2:4, :2]),fig.add_subplo
 for i in range(7):
     ax = axes[i]
 
-    #sample = df[(df["neural_response"] == types[i])].sample()
-
-    sample = df[(df["delivery"]==delivery[i]) & (df["cell_num"]==cell_nums[i]) & (df["neural_response"] == types[i]) & (df["mouse"]==mouse[i])]
-    print(sample)
+    sample = df[(df["group"]==groups[i]) & (df["cell_num"]==cell_nums[i])]
     cell_dir = sample["cell_dir"].values[0]
     neuron = pickle.load(open(f"{cell_dir}/neuron.obj","rb"))
-    #print(neuron.cell_num,neuron.delivery,neuron.mouse,neuron.neural_response)
 
     baselines = []; stimuli = [];
     for trial in range(1,neuron.trials+1):
@@ -80,20 +70,11 @@ for i in range(7):
     ax.set_xticks(list(range(-10,11,5)))
     ax.set_xticklabels(list(range(-10,11,5)),fontsize=14)
     ax.set_xlabel("Time (s)",fontsize=14)
-    sns.despine()
-    for i in ['left','right','top','bottom']:
-        if i != 'left' and i != 'bottom':
-            ax.spines[i].set_visible(False)
-            ax.tick_params('both', width=0)
-        else:
-            ax.spines[i].set_linewidth(3)
-            ax.tick_params('both', width=0)
 
 labels = ["A","B","C","D","E","F","G"]
 for i in range(len(axes)):
-    #axes[i].text(0.03,0.98,labels[i],fontsize=16,transform=axes[i].transAxes,fontweight="bold",color="gray")
     axes[i].text(0.25,0.98,types[i],fontsize=16,transform=axes[i].transAxes,fontweight="bold",color="gray")
-
+makeNice(axes)
 plt.tight_layout()
 plt.savefig(f"../figures/canonical_examples.pdf")
 plt.close()
