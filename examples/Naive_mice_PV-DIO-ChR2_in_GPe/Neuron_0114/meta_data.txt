@@ -1,0 +1,8 @@
+# Metadata for Neuron
+cell_num:	114
+channel:	Ch12cell1.tx
+delivery:	PV-DIO-ChR2 in GPe
+distance:	1.4
+hemisphere:	right
+location:	Central
+mouse:	Naive mice

@@ -1,0 +1,8 @@
+# Metadata for Neuron
+cell_num:	90
+channel:	Neuron
+delivery:	PV-DIO-ChR2 in GPe
+distance:	1.7
+hemisphere:	left
+location:	Lateral
+mouse:	6-OHDA mice

@@ -1,0 +1,10 @@
+AG:	AG6748
+Mouse#:	1
+Recording:	030821
+distance:	1.0
+trajectory:	4
+mouse:	6-OHDA mice
+cell_num:	82
+channel:	15
+pos:	left
+src:	raw_data/Spike times files GPe to SNr project/6-OHDA mice/hsyn-ChR2 in GPe/AG6748_mouse#1_6-OHDA_recorded_030821/Trajectory4_1.0mm_left_in_SNr_1mW_10s_GPe_stim_neurons_recorded_together/Neuron_recorded_in_Ch15.txt

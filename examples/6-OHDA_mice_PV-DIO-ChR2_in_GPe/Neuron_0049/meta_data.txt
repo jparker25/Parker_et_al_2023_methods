@@ -1,0 +1,8 @@
+# Metadata for Neuron
+cell_num:	49
+channel:	Ch15.tx
+delivery:	PV-DIO-ChR2 in GPe
+distance:	1.1
+hemisphere:	right
+location:	Central
+mouse:	6-OHDA mice

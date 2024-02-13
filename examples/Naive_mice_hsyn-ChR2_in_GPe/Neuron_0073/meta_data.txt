@@ -1,0 +1,8 @@
+# Metadata for Neuron
+cell_num:	73
+channel:	Neuron
+delivery:	hsyn-ChR2 in GPe
+distance:	1.7
+hemisphere:	right
+location:	Lateral
+mouse:	Naive mice
