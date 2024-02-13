@@ -1,9 +1,15 @@
+"""
+Generates all figures.
+
+Usage: python run_all_figures.py
+"""
+
 from helpers import *
 
-run_cmd("python baseline_shuffling_example.py")
-run_cmd("python borderline_examples.py")
-run_cmd("python canonical_examples.py")
-run_cmd("python trial_sdf_isif_example.py")
-run_cmd("python average_example.py")
-run_cmd("python sdf_isif_example.py")
-run_cmd("python sdf_isif_comparison.py")
+run_cmd("python figure_1.py")
+run_cmd("python figure_2.py")
+run_cmd("python figure_3.py")
+run_cmd("python figure_4.py")
+run_cmd("python figure_6.py")
+run_cmd("python figure_7.py")
+run_cmd("python figures_8_to_11.py")
